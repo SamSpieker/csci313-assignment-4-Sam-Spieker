@@ -48,6 +48,12 @@ class BookListView(generic.ListView):
     
 class BookDetailView(generic.DetailView):
     model = Book
+    
+class AuthorListView(generic.ListView):
+    model = Author
+    
+class AuthorDetailView(generic.DetailView):
+    model = Author
 
 class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
     """Generic class-based view listing books on loan to current user."""
@@ -62,7 +68,19 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
             .order_by('due_back')
         )
     
+class AllLoanedBooksListView(LoginRequiredMixin,generic.ListView):
+    """Generic class-based view listing books on loan to current user."""
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
 
+    def get_queryset(self):
+        return (
+            BookInstance.objects
+            .filter(status__exact='o')
+            .order_by('due_back')
+        )
+        
 @login_required
 @permission_required('catalog.can_mark_returned', raise_exception=True)
 def renew_book_librarian(request, pk):
